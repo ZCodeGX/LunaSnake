@@ -1,0 +1,15 @@
+import juego.estadisticas
+import juego.ia
+import juego.partida
+import juego.render
+import juego.serpiente
+import juego.shell
+import juego.tablero
+
+pub let estadisticas = estadisticas
+pub let ia = ia
+pub let partida = partida
+pub let render = render
+pub let serpiente = serpiente
+pub let shell = shell
+pub let tablero = tablero

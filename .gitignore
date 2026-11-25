@@ -1,0 +1,4 @@
+datos/
+/luna-src/
+*.pyc
+.DS_Store

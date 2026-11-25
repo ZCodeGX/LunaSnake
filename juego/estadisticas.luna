@@ -1,0 +1,43 @@
+import io
+import json
+import path
+import string
+import table
+
+let ARCHIVO = path.join("datos", "estadisticas.json")
+
+fn por_defecto():
+    return { partidas = 0, mejor = 0, comidas = 0 }
+
+pub fn cargar():
+    let stats = por_defecto()
+    if not io.exists(ARCHIVO):
+        return stats
+    try:
+        let datos = json.decode(io.read(ARCHIVO))
+        if type(datos) == "table":
+            if table.has(datos, "partidas"):
+                stats.partidas = datos.partidas
+            if table.has(datos, "mejor"):
+                stats.mejor = datos.mejor
+            if table.has(datos, "comidas"):
+                stats.comidas = datos.comidas
+    catch e:
+        print(string.concat(" No se pudieron leer las estadísticas: ", e))
+    return stats
+
+pub fn guardar(stats):
+    try:
+        io.ensure_dir("datos")
+        io.write(ARCHIVO, json.encode(stats))
+        return true
+    catch e:
+        print(string.concat(" No se pudieron guardar las estadísticas: ", e))
+        return false
+
+pub fn registrar(stats, puntaje, pasos):
+    stats.partidas += 1
+    stats.comidas += puntaje
+    if puntaje > stats.mejor:
+        stats.mejor = puntaje
+    return stats

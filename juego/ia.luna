@@ -1,0 +1,28 @@
+import juego.serpiente
+import math
+
+pub fn crear():
+    let direcciones = math.shuffle(["w", "a", "s", "d"])
+    return { direcciones = direcciones }
+
+pub fn elegir(cerebro, tab, snake):
+    let mejor = snake.dir
+    let mejor_distancia = 1000000
+    let i = 0
+    while i < len(cerebro.direcciones):
+        let dir = cerebro.direcciones[i]
+        let destino = serpiente.destino(snake, dir, tab.ancho, tab.alto)
+        if destino != nil:
+            if not serpiente.ocupa(snake, destino.x, destino.y, true):
+                let dx = destino.x - tab.comida.x
+                if dx < 0:
+                    dx = -dx
+                let dy = destino.y - tab.comida.y
+                if dy < 0:
+                    dy = -dy
+                let distancia = dx + dy
+                if distancia < mejor_distancia:
+                    mejor_distancia = distancia
+                    mejor = dir
+        i += 1
+    return mejor

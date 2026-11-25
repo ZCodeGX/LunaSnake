@@ -1,0 +1,70 @@
+import juego.config
+import juego.estadisticas
+import juego.ia
+import juego.serpiente
+import juego.shell
+import juego.tablero
+import json
+import string
+
+let fallos = 0
+
+fn check(nombre, condicion):
+    if condicion:
+        print("ok   ", nombre)
+    else:
+        print("FAIL ", nombre)
+        fallos += 1
+
+check("configuración", config.ANCHO == 12 and config.ALTO == 8)
+let snake = serpiente.crear()
+let y = snake.cuerpo[0].y
+check("crear serpiente", len(snake.cuerpo) == 3 and snake.dir == "d")
+check("cambio válido", serpiente.cambiar(snake, "W") and snake.dir == "w")
+let inverso = serpiente.crear()
+check("cambio inverso rechazado", not serpiente.cambiar(inverso, "a") and inverso.dir == "d")
+let destino = serpiente.destino(inverso, "d", config.ANCHO, config.ALTO)
+check("destino", destino.x == 3 and destino.y == y)
+let borde = serpiente.crear()
+borde.cuerpo[2].x = config.ANCHO - 1
+borde.cuerpo[1].x = config.ANCHO - 2
+borde.cuerpo[0].x = config.ANCHO - 3
+check("destino fuera del tablero", serpiente.destino(borde, "d", config.ANCHO, config.ALTO) == nil)
+let come = serpiente.crear()
+let res_comer = serpiente.mover(come, { x = 3, y = y }, config.ANCHO, config.ALTO)
+check("comer crece", res_comer.vivo and res_comer.comio and len(come.cuerpo) == 4)
+let libre = serpiente.crear()
+let res_libre = serpiente.mover(libre, { x = 10, y = 0 }, config.ANCHO, config.ALTO)
+check("movimiento simple", res_libre.vivo and not res_libre.comio and len(libre.cuerpo) == 3)
+let choque = serpiente.crear()
+choque.dir = "a"
+let res_choque = serpiente.mover(choque, { x = 10, y = 0 }, config.ANCHO, config.ALTO)
+check("colisión con el cuerpo", not res_choque.vivo and res_choque.razon == "cuerpo")
+check("cola permitida", not serpiente.ocupa(choque, 0, y, true))
+check("cuerpo ocupado", serpiente.ocupa(choque, 1, y, true))
+let tab = tablero.crear(config.ANCHO, config.ALTO)
+check("tablero creado", tab.ancho == config.ANCHO and tab.alto == config.ALTO)
+let fresco = serpiente.crear()
+check("ubicar comida", tablero.ubicar(tab, fresco) and not serpiente.ocupa(fresco, tab.comida.x, tab.comida.y, false))
+let cerebro = ia.crear()
+let dir = ia.elegir(cerebro, tab, serpiente.crear())
+check("IA elige dirección", dir == "w" or dir == "a" or dir == "s" or dir == "d")
+let stats = estadisticas.cargar()
+stats.partidas = 0
+stats.mejor = 0
+stats.comidas = 0
+check("estadísticas iniciales", stats.partidas == 0 and stats.mejor == 0 and stats.comidas == 0)
+estadisticas.registrar(stats, 5, 20)
+check("estadísticas registradas", stats.partidas == 1 and stats.mejor == 5 and stats.comidas == 5)
+let copia = json.decode(json.encode(stats))
+check("JSON roundtrip", copia.mejor == 5 and copia.partidas == 1)
+let comando = shell.ejemplo()
+check("os.run desde el juego", comando.code == 0 and string.find(comando.stdout, "Luna Snake") >= 0)
+let limpieza = shell.comando_limpieza()
+check("comando de limpieza", limpieza == "clear" or limpieza == "cls")
+
+print("")
+if fallos == 0:
+    print("Todas las pruebas pasaron")
+else:
+    print(string.concat(fallos, " pruebas fallaron"))

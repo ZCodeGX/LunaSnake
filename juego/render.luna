@@ -1,0 +1,77 @@
+import juego.config
+import string
+
+pub fn titulo():
+    print(string.repeat("=", 52))
+    print("  LUNA SNAKE  ·  snake por turnos en Luna")
+    print(string.repeat("=", 52))
+
+pub fn separador():
+    print(string.repeat("-", 52))
+
+pub fn tablero(tab, snake):
+    let borde = string.concat("+", string.repeat("-", tab.ancho * 2 + 1), "+")
+    print(borde)
+    let y = 0
+    while y < tab.alto:
+        let linea = string.concat(string.pad_left(str(y), 2, " "), "|")
+        let x = 0
+        while x < tab.ancho:
+            let simbolo = config.VACIO
+            if tab.comida.x == x and tab.comida.y == y:
+                simbolo = config.COMIDA
+            let i = 0
+            while i < len(snake.cuerpo):
+                if snake.cuerpo[i].x == x and snake.cuerpo[i].y == y:
+                    if i == len(snake.cuerpo) - 1:
+                        simbolo = config.CABEZA
+                    else:
+                        simbolo = config.CUERPO
+                i += 1
+            linea = string.concat(linea, " ", simbolo, " |")
+            x += 1
+        print(linea)
+        print(borde)
+        y += 1
+
+pub fn final(puntaje, pasos, razon):
+    separador()
+    if razon == "muro":
+        print(string.concat("FIN: chocaste contra el borde | comidas: ", puntaje, " | pasos: ", pasos))
+    else:
+        if razon == "cuerpo":
+            print(string.concat("FIN: te mordiste | comidas: ", puntaje, " | pasos: ", pasos))
+        else:
+            print(string.concat("FIN: tablero completo | comidas: ", puntaje, " | pasos: ", pasos))
+    separador()
+
+pub fn menu(stats):
+    titulo()
+    print(string.concat(" Partidas: ", stats.partidas, " | Mejor: ", stats.mejor,
+                        " | Comidas totales: ", stats.comidas))
+    print("")
+    print(" 1) Jugar")
+    print(" 2) Estadísticas")
+    print(" 3) Cómo jugar")
+    print(" 4) Salir")
+    print(" 5) Consola del sistema (os.run)")
+    print("")
+
+pub fn estadisticas(stats):
+    titulo()
+    print("")
+    print(string.concat(" Partidas jugadas:  ", stats.partidas))
+    print(string.concat(" Mejor puntuación: ", stats.mejor))
+    print(string.concat(" Comidas totales:  ", stats.comidas))
+    print("")
+
+pub fn ayuda():
+    titulo()
+    print("")
+    print(" Objetivo: comer comidas (*) sin chocar contra el borde ni tu propio cuerpo.")
+    print(" Cada letra mueve la serpiente una casilla: w = arriba, a = izquierda,")
+    print(" s = abajo, d = derecha. No podés invertir la dirección actual.")
+    print(" 'salir' vuelve al menú. O = cabeza, o = cuerpo, * = comida, . = vacío.")
+    print(" Probá también: luna main.luna --demo --seed 42")
+    print(" La opción 5 usa os.run para ejecutar un comando y mostrar código y salida.")
+    print("")

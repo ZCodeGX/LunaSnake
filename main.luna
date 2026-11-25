@@ -1,0 +1,78 @@
+import juego
+import math
+import string
+import time
+
+fn pedir(texto):
+    let valor = input(texto)
+    if valor == nil:
+        return nil
+    return string.trim(valor)
+
+fn ayuda_cli():
+    print("Uso: luna main.luna [opciones]")
+    print("")
+    print("  --demo            partida automática sin intervención")
+    print("  --seed N          semilla reproducible para --demo")
+    print("  --help, -h        muestra esta ayuda")
+    print("")
+
+fn menu():
+    let stats = juego.estadisticas.cargar()
+    while true:
+        juego.shell.limpiar()
+        juego.render.menu(stats)
+        let op = pedir("> ")
+        if op == nil or len(op) == 0:
+            return
+        if op == "1":
+            juego.partida.jugar(false, stats)
+        else:
+            if op == "2":
+                juego.render.estadisticas(stats)
+            else:
+                if op == "3":
+                    juego.render.ayuda()
+                else:
+                    if op == "4":
+                        return
+                    else:
+                        if op == "5":
+                            juego.shell.consola()
+                        else:
+                            print(" Opción no válida. Elegí 1, 2, 3, 4 o 5.")
+
+fn principal():
+    let modo = "menu"
+    let semilla = 0
+    let i = 0
+    while i < len(argv):
+        let arg = argv[i]
+        if arg == "--demo":
+            modo = "demo"
+        else:
+            if arg == "--seed":
+                if i + 1 >= len(argv):
+                    print(" Falta el valor para --seed")
+                    return
+                i += 1
+                semilla = int(argv[i])
+            else:
+                if arg == "--help" or arg == "-h":
+                    ayuda_cli()
+                    return
+                else:
+                    print(string.concat(" Opción desconocida: ", arg))
+                    ayuda_cli()
+                    return
+        i += 1
+    if semilla == 0:
+        semilla = int(time.now())
+    math.seed(semilla)
+    if modo == "demo":
+        print(string.concat(" Modo demostración (semilla ", semilla, ")"))
+        juego.partida.jugar(true, nil)
+    else:
+        menu()
+
+principal()

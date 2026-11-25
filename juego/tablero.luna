@@ -1,0 +1,25 @@
+import juego.serpiente
+import math
+
+pub fn crear(ancho, alto):
+    return { ancho = ancho, alto = alto, comida = { x = 0, y = 0 }, comidas = 0 }
+
+pub fn ubicar(tab, snake):
+    let intentos = 0
+    while intentos < 200:
+        let x = math.randint(0, tab.ancho - 1)
+        let y = math.randint(0, tab.alto - 1)
+        if not serpiente.ocupa(snake, x, y, false):
+            tab.comida = { x = x, y = y }
+            return true
+        intentos += 1
+    let x = 0
+    while x < tab.ancho:
+        let y = 0
+        while y < tab.alto:
+            if not serpiente.ocupa(snake, x, y, false):
+                tab.comida = { x = x, y = y }
+                return true
+            y += 1
+        x += 1
+    return false

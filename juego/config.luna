@@ -1,0 +1,7 @@
+pub let ANCHO = 12
+pub let ALTO = 8
+
+pub let VACIO = "."
+pub let CUERPO = "o"
+pub let CABEZA = "O"
+pub let COMIDA = "*"

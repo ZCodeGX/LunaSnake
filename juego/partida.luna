@@ -1,0 +1,64 @@
+import juego.config
+import juego.estadisticas
+import juego.ia
+import juego.render
+import juego.serpiente
+import juego.shell
+import juego.tablero
+import string
+
+fn pedir(texto):
+    let valor = input(texto)
+    if valor == nil:
+        return nil
+    return string.trim(valor)
+
+pub fn jugar(auto, stats):
+    let tab = tablero.crear(config.ANCHO, config.ALTO)
+    let snake = serpiente.crear()
+    tablero.ubicar(tab, snake)
+    let cerebro = ia.crear()
+    let pasos = 0
+    let razon = "fin"
+    if not auto:
+        shell.limpiar()
+        render.tablero(tab, snake)
+    while true:
+        pasos += 1
+        if auto:
+            snake.dir = ia.elegir(cerebro, tab, snake)
+        else:
+            while true:
+                let texto = pedir("Movimiento (w/a/s/d, 'salir'): ")
+                if texto == nil or string.lower(texto) == "salir":
+                    return nil
+                if serpiente.cambiar(snake, texto):
+                    break
+                print(" Dirección no válida (o es la contraria).")
+        let resultado = serpiente.mover(snake, tab.comida, tab.ancho, tab.alto)
+        if not resultado.vivo:
+            razon = resultado.razon
+            break
+        if resultado.comio:
+            tab.comidas += 1
+            if not tablero.ubicar(tab, snake):
+                razon = "fin"
+                break
+        if len(snake.cuerpo) >= tab.ancho * tab.alto:
+            razon = "fin"
+            break
+        if auto:
+            if pasos >= 150:
+                razon = "fin"
+                break
+        else:
+            shell.limpiar()
+            render.tablero(tab, snake)
+            print(string.concat(" Pasos: ", pasos, " | Comidas: ", tab.comidas))
+    if not auto:
+        shell.limpiar()
+    render.final(tab.comidas, pasos, razon)
+    if stats != nil:
+        estadisticas.registrar(stats, tab.comidas, pasos)
+        estadisticas.guardar(stats)
+    return tab.comidas

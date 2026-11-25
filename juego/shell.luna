@@ -1,0 +1,37 @@
+import os
+import string
+
+pub fn ejemplo():
+    return os.run(string.concat("echo Luna Snake en ", os.name()))
+
+pub fn comando_limpieza():
+    if os.name() == "windows":
+        return "cls"
+    return "clear"
+
+pub fn limpiar():
+    os.system(comando_limpieza())
+
+pub fn consola():
+    print("")
+    print(" Consola del sistema con os.run")
+    print(" El comando se ejecuta con tus permisos; evitá comandos destructivos.")
+    let entrada = input("Comando> ")
+    if entrada == nil:
+        return
+    let comando = string.trim(entrada)
+    if len(comando) == 0:
+        return
+    let resultado = os.run(comando)
+    print(string.concat(" código: ", resultado.code, " | ok: ", resultado.ok))
+    if len(resultado.stdout) > 0:
+        print(" salida:")
+        let salidas = string.split(string.trim(resultado.stdout), "\n")
+        for texto in salidas:
+            print(string.concat("   ", texto))
+    if len(resultado.stderr) > 0:
+        print(" stderr:")
+        let errores = string.split(string.trim(resultado.stderr), "\n")
+        for texto_error in errores:
+            print(string.concat("   ", texto_error))
+    print("")
